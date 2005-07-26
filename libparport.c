@@ -9,26 +9,33 @@
 #include <stdio.h>
 #include <unistd.h>
 int parport_dev=0;
+int open_count=0;
 unsigned char parport_data=0;
 
 void parport_open(char * name){
-	parport_dev=open(name,O_RDWR);
-	if(parport_dev<0){
-		printf("parport: fatal error cannot open \"%s\"\n",name);
-		printf("Error number is %d\n",errno);
-		perror("parport_open: error");
-		exit(1);
+	if(open_count<1){	/* should be able to open parport multiple times, need to keep track */
+		parport_dev=open(name,O_RDWR);
+		if(parport_dev<0){
+			printf("parport: fatal error cannot open \"%s\"\n",name);
+			printf("Error number is %d\n",errno);
+			perror("parport_open: error");
+			exit(1);
+			}
+		/* set up exclusive rights to the parport */
+		ioctl(parport_dev,PPEXCL); /* note that robi doesn't use this....*/
+		ioctl(parport_dev,PPCLAIM);
+		parport_data=0;
+		parport_out(parport_data);
 		}
-	/* set up exclusive rights to the parport */
-	ioctl(parport_dev,PPEXCL); /* note that robi doesn't use this....*/
-	ioctl(parport_dev,PPCLAIM);
-	parport_data=0;
-	parport_out(parport_data);
+	open_count++;
 	}
 	
 void parport_close(void){
-	ioctl(parport_dev,PPRELEASE);
-	close(parport_dev);
+	if(open_count==1){
+		ioctl(parport_dev,PPRELEASE);
+		close(parport_dev);
+		}
+	open_count--;
 	}
 
 void parport_out(unsigned char data){
