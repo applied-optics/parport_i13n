@@ -45,13 +45,15 @@ unsigned char there;
 	if(ioctl(parport_dev,PPWDATA,&data)==0)
 		parport_data=data;
 	}
-
 void parport_bit_up(unsigned char bit){
 	parport_out(bit | parport_data);
 	}
-	
 void parport_bit_down(unsigned char bit){
 	parport_out(~bit & parport_data);
+	}
+void parport_bit_set(unsigned char bit,int val){
+	if(val)parport_bit_up(bit);
+	else parport_bit_down(bit);
 	}
 unsigned char parport_value(){
         return parport_data;
