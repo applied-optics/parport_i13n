@@ -24,8 +24,10 @@ void parport_open(char * name){
 		/* set up exclusive rights to the parport */
 		ioctl(parport_dev,PPEXCL); /* note that robi doesn't use this....*/
 		ioctl(parport_dev,PPCLAIM);
-		parport_data=0;
-		parport_out(parport_data);
+		// for the shutters expt we have to leave the state unknow until we set it
+		//parport_data=0;
+		//parport_out(parport_data);
+		if(ioctl(parport_dev,PPRDATA,&parport_data)==0)
 		}
 	open_count++;
 	}
@@ -39,6 +41,7 @@ void parport_close(void){
 	}
 
 void parport_out(unsigned char data){
+unsigned char there;
 	if(ioctl(parport_dev,PPWDATA,&data)==0)
 		parport_data=data;
 	}
