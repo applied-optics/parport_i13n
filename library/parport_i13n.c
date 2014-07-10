@@ -4,7 +4,7 @@
 #include <linux/ppdev.h>
 #include <sys/ioctl.h>
 #include <errno.h>
-#include "libparport.h"
+#include "parport_i13n.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
