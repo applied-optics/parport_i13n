@@ -27,7 +27,7 @@ void parport_open(char * name){
 		// for the shutters expt we have to leave the state unknow until we set it
 		//parport_data=0;
 		//parport_out(parport_data);
-		if(ioctl(parport_dev,PPRDATA,&parport_data)==0)
+		ioctl(parport_dev,PPRDATA,&parport_data);
 		}
 	open_count++;
 	}
@@ -45,12 +45,23 @@ unsigned char there;
 	if(ioctl(parport_dev,PPWDATA,&data)==0)
 		parport_data=data;
 	}
+
+// these work with a bit mask - changing the 1s in the mask leaving the 0s
+void parport_bits_up(unsigned char bit){
+        parport_out(bit | parport_data);
+        }
+void parport_bits_down(unsigned char bit){
+        parport_out(~bit & parport_data);
+        }
+// these set the bit 0-7 only
 void parport_bit_up(unsigned char bit){
-	parport_out(bit | parport_data);
+	parport_out((1<<bit) | parport_data);
 	}
 void parport_bit_down(unsigned char bit){
-	parport_out(~bit & parport_data);
+	parport_out(~(1<<bit) & parport_data);
 	}
+
+// bits labelled 0-7
 void parport_bit_set(unsigned char bit,int val){
 	if(val)parport_bit_up(bit);
 	else parport_bit_down(bit);
